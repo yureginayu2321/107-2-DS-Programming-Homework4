@@ -1,0 +1,195 @@
+---
+title: "homework4"
+date: "2019-05-16"
+output: html_document
+params:
+  studentID: "你的學號"
+  studentName: "你的姓名"
+---
+# 注意事項
+
+存檔與填寫注意事項：
+
+假設你叫王小明，學號41078392。
+
+  1. 存檔時，請用你的學號當延伸檔名。學號為41078392，則請存成homeworkX-41078392.Rmd, X為這次作業號碼。(記得使用：save with enconding, 然後選utf-8)
+
+  2. 本文檔開始的Frontmatter中，studentID（即key）其value目前為"你的學號"，以上面學號為例則必需改成"41078392"；而studentName（key）其value目前為"你的名字"，以上面名字為例則必需改成"王小明"
+  
+> 每次作業滿分10分：收到Google行事曆邀請按Yes(接受)得2分，有寫作業於期限內上傳得3分，依作業準確率決定最後5分得分多寡。
+
+> 前述存檔utf-8格式要求與frontmatter要求缺任何一個則扣1分。
+
+> !!! 不使用作業檔作答（例如：作業1有同學拿自己上課練習檔在後面接上作業檔內容；也有同學用new file產生rmd檔懶得刪除新檔案原有文字而在後面亂貼作業檔內容），其答案全部都會算錯（影響改題程式判讀）。
+
+> !!! 「有寫作業於期限內上傳得3分」指得是上傳自己寫的作業檔，上傳空白作業檔或其他不相關檔案用來騙取3分是不可取的行為，抓到該次作業算0分，抓到2次則整學期作業均為0分。
+
+# 題目
+
+請先執以下code chunk, 引入所需packages. 
+```{r}
+library(lubridate); library(stringr); library(purrr); library(readr);
+```
+
+## 作答需知
+每一題會有設好的ans chunk，它會有ansxx標籤（如下的ans99），請將你的程式寫在裡面。每一題都需要你把答案存在指定的物件，並在「**最後一行**」打物件名稱。以下例，若答案是`2+3`並要你存在答案物件test裡，那你的程式如下：
+```{r}
+test <- 2+3 # 答案存在指定test物件
+test # 最後一行打指定物件名稱
+```
+
+## 1 課堂練習記錄
+點擊以下網址可以看到到GitHub使用者r-hub在自己的cranlogs repo的commits記錄：
+https://github.com/r-hub/cranlogs/commits/master
+每一筆記錄都會有一個sha截錄代碼，長得像361c9d7的代碼，它只是完整sha代碼的前七位元值。
+
+執行以下記錄會得到上面網址的「最近30筆」commit記錄存在commitHistory這個list物件裡，其中`commitHistory[[1]]`是「最新一筆」commit記錄，`commitHistory[[2]]`則是「次新」的記錄，依此類推。每一筆記錄會有一個sha元素，其代碼前七位元則對應先前打開網頁的各筆commit記錄。
+```{r data1}
+library(httr) 
+commitHistory <- content(GET("https://api.github.com/repos/r-hub/cranlogs/commits"))
+```
+
+### 1.1 取出單一commit資料
+請由commitHistory取出第10個元素，並存在答案物件oneCommitRecord。
+```{r ans101}
+# oneCommitRecord
+```
+
+
+### 1.2 轉成data frame
+延續使用上一題取出的元素，你可以看到該筆commit資料，請創造一個data frame名稱為df_commit，它包含以下欄位變數：
+
+  * author: 為其中commit元素底下的author底下的 name元素值（為方便討論以下用->表示為commit->author->name)。
+  
+  * commiter： commit-> committer-> name元素值。
+  
+  * commitDate: commit-> commiter-> date元素值。
+  
+  * sha: sha元素值
+
+所有變數值均為character class且stringsAsFactors=F。
+
+```{r ans102}
+# df_commit
+```
+
+### 1.3 寫成函數
+請創造一個答案函數物件叫commit_df_fun, 其input為oneCommitRecord, output為df_commit。最後一行請寫commit_df_fun, 不要加`()`
+```{r ans103}
+# commit_df_fun
+```
+
+### 1.4 產生完整data frame
+使用作業3的2.4小題所提及的purrr套件之`map_dfr()`函數，將commitHistory的所有30筆資料轉成與1.2小題df_commit一樣欄位名稱但有30筆資料的data fram答案物件df_allCommits, 最後一行請寫df_allCommits
+```{r ans104}
+# df_allCommits
+```
+
+### 1.5 留下個人完成的commit
+只有當author與committer是同一人時，該commit才會是該使用者對此repo的貢獻（若不同，可能是其中一個完成，另一人只是引入他的成就）。在df_allCommits新增一個logical class變數稱為samePerson，其值為TRUE當author與commiter同一人。(最後一行請打df_allCommits$samePerson)
+
+```{r ans105}
+# df_allCommits$samePerson
+```
+
+### 1.6 子樣本
+請取出df_allCommits中為同一人貢獻的子樣本，存在答案物件df_validCommits。
+
+```{r ans106}
+# df_validCommits
+```
+
+### 1.7 日期
+df_validCommits中的commitDate為UTC時區表示的時間"字串"，請將它轉成以"Asia/Taipei"時區顯示的POSIXct class資料，最後一行請打答案物件df_validCommits$commitDate。
+```{r ans107}
+# df_validCommits$commitDate
+```
+
+### 1.8 hh變數
+請由`df_validCommits$commitDate`中取出台灣時區的小時數（0-23間）存在`df_validCommits$hh`中，其class為integer，最後一行請打df_validCommits$hh。
+```{r ans108}
+# df_validCommits$hh
+```
+
+### 1.9 date變數
+請由`df_validCommits$commitDate`中取出它的YYYY-MM-DD日期存在`df_validCommits$date`中，其class為Date，最後一行請打df_validCommits$date。
+
+```{r ans109}
+# df_validCommits$date
+```
+
+### 1.10 weekday變數
+請由`df_validCommits$commitDate`中取出它是星期幾存在`df_validCommits$weekday`中，其class為integer（1是星期天，2是星期一，...，7是星期六），最後一行請打df_validCommits$weekday。(hint：使用`lubridate::wday()`函數)
+
+```{r ans110}
+# df_validCommits$weekday
+```
+
+### 1.11 星期一到三且12-23
+在df_validCommits裡創立一個新的validCommit欄位，class為logical，其值為TRUE若commitDate落在星期一到三，小時在12到23間（含起迄）；最後一行請打df_validCommits$validCommit。
+```{r ans111}
+# df_validCommits$validCommit
+```
+
+### 1.12 取出合格條件子樣本
+取出df_validCommits中commitDate落在星期一到三，小時在12到23間（含起迄）的子樣本，存在data frame class的答案物件df_validCommitsSubsample中，最後一行打df_validCommitsSubsample。
+```{r ans112}
+# df_validCommitsSubsample
+```
+
+
+### 1.13 不重覆計算
+符合上述條件的日期時間，每個日期只需計算一次——即同一天有多個commit落在上述時間區間條件的只計算一次。在不重覆計算下，請問有多少筆合格的commits，將此integer class值存在答案物件validCounts。(hint: `length()`可從vector角度計算物件有幾個元素，`nrow()`只針對方形資料計算它的列數)
+
+```{r ans113}
+# validCounts
+```
+
+### 1.14 不重覆有效commit次數查詢函數
+寫一個函數叫valid_commit_count，它的使用方式如下： 
+```
+valid_commit_count(username,reponame,wday,startHour,endHour)
+```
+其中
+
+  * username: character，GitHub repo使用者名稱，如題目的"r-hub"。
+  
+  * reponame: character, GitHub repo名稱，如題目的"cranlogs"。
+  
+  * wday: an integer。輸入1代表「星期天」，2代表「星期一」，依此類推，7為「星期六」。
+  
+  * startHour, endHour: an integer 介於0到23。startHour=13, endHour=15代表要從13點到15點(含起迄)。 
+
+所以你只要輸入`valid_commit_count("你的github使用者名稱","107-2-inclass-practice",4,15,16)`便會算你最近30個課堂練習commit有多少是在星期三下午的3點00分到4點59分完成，即是這30個commit中的合格上課出席次數。（超過30次的部份有其他方法抓到資料，請不同擔心。若你近期有上課也有commits，那你只是忘了push，趕快push上去便會有記錄。）
+
+以下是這個函數的內容提示：
+```
+valid_commit_count <- function(username,reponame,wday,startHour,endHour){
+
+  commitHistory <- content(GET(...)) # 想辦法由username,reponame input產生合理的...
+  
+  # 接著依順序貼下先前完成的以下步驟，便可得到validCounts成為output
+  # 1.4
+  # 1.5
+  # 1.6
+  # 1.7
+  # 1.8 
+  # 1.9 
+  # 1.10 
+  # 1.11 : 這邊要改一下，以對應input的wday, startHour, endHour
+  # 1.12 
+  # 1.13
+
+  return(validCounts)
+}
+
+```
+最後一行請打valid_commit_count。
+```{r ans114}
+# valid_commit_count
+```
+
+
+> 答完後上傳前，請確認每個code chunk的最後一行皆為該題的答案物件（除非題目有另外規定），且frontmatter的studentID及studentName皆有填寫。
+
+> 注意： 沒有存檔成utf-8格式或frontmatter資訊沒填寫會扣1分。
