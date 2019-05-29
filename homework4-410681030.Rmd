@@ -52,6 +52,8 @@ commitHistory <- content(GET("https://api.github.com/repos/r-hub/cranlogs/commit
 ### 1.1 取出單一commit資料
 請由commitHistory取出第10個元素，並存在答案物件oneCommitRecord。
 ```{r ans101}
+oneCommitRecord <- commitHistory[[10]]
+oneCommitRecord
 # oneCommitRecord
 ```
 
@@ -70,18 +72,37 @@ commitHistory <- content(GET("https://api.github.com/repos/r-hub/cranlogs/commit
 所有變數值均為character class且stringsAsFactors=F。
 
 ```{r ans102}
+df_commit <- list(author=oneCommitRecord$commit$author$name,
+                  commiter=oneCommitRecord$commit$committer$name,
+                  commitDate=oneCommitRecord$commit$committer$date,
+                  sha=oneCommitRecord$sha)
+df_commit
 # df_commit
 ```
 
 ### 1.3 寫成函數
 請創造一個答案函數物件叫commit_df_fun, 其input為oneCommitRecord, output為df_commit。最後一行請寫commit_df_fun, 不要加`()`
 ```{r ans103}
+commit_df_fun <- function(oneCommitRecord,df_commit){
+  
+  df_commit <- df_commit <- list(author=oneCommitRecord$commit$author$name,
+                  commiter=oneCommitRecord$commit$committer$name,
+                  commitDate=oneCommitRecord$commit$committer$date,
+                  sha=oneCommitRecord$sha)
+            
+  return(df_commit)
+}
+commit_df_fun -> df_commit
+commit_df_fun
 # commit_df_fun
 ```
 
 ### 1.4 產生完整data frame
 使用作業3的2.4小題所提及的purrr套件之`map_dfr()`函數，將commitHistory的所有30筆資料轉成與1.2小題df_commit一樣欄位名稱但有30筆資料的data fram答案物件df_allCommits, 最後一行請寫df_allCommits
 ```{r ans104}
+library(dplyr)
+df_allCommits <- map_dfr(commitHistory,commit_df_fun)
+df_allCommits
 # df_allCommits
 ```
 
@@ -89,6 +110,8 @@ commitHistory <- content(GET("https://api.github.com/repos/r-hub/cranlogs/commit
 只有當author與committer是同一人時，該commit才會是該使用者對此repo的貢獻（若不同，可能是其中一個完成，另一人只是引入他的成就）。在df_allCommits新增一個logical class變數稱為samePerson，其值為TRUE當author與commiter同一人。(最後一行請打df_allCommits$samePerson)
 
 ```{r ans105}
+df_allCommits$samePerson <- df_allCommits$author == df_allCommits$commiter
+df_allCommits$samePerson
 # df_allCommits$samePerson
 ```
 
@@ -96,18 +119,31 @@ commitHistory <- content(GET("https://api.github.com/repos/r-hub/cranlogs/commit
 請取出df_allCommits中為同一人貢獻的子樣本，存在答案物件df_validCommits。
 
 ```{r ans106}
+class(df_allCommits$author)
+typeof(df_allCommits$author
+       )
+as.character(df_allCommits$author)
+as.factor(df_allCommits$author)
+levels(df_allCommits$author) 
+df_validCommits
 # df_validCommits
 ```
 
 ### 1.7 日期
 df_validCommits中的commitDate為UTC時區表示的時間"字串"，請將它轉成以"Asia/Taipei"時區顯示的POSIXct class資料，最後一行請打答案物件df_validCommits$commitDate。
 ```{r ans107}
+y <- ymd(df_validCommits$commitDate)
+df_validCommits$commitDate <- with_tz(y,tzone="Asia/Taipei"
+              )
+df_validCommits$commitDate
 # df_validCommits$commitDate
 ```
 
 ### 1.8 hh變數
 請由`df_validCommits$commitDate`中取出台灣時區的小時數（0-23間）存在`df_validCommits$hh`中，其class為integer，最後一行請打df_validCommits$hh。
 ```{r ans108}
+df_validCommits$hh <- df_validCommits$commitDate>=0 & df_validCommits$commitDate<=23
+df_validCommits$hh
 # df_validCommits$hh
 ```
 
@@ -115,6 +151,8 @@ df_validCommits中的commitDate為UTC時區表示的時間"字串"，請將它�
 請由`df_validCommits$commitDate`中取出它的YYYY-MM-DD日期存在`df_validCommits$date`中，其class為Date，最後一行請打df_validCommits$date。
 
 ```{r ans109}
+ymd_hms(df_validCommits$commitDate) ->  df_validCommits$date
+df_validCommits$date
 # df_validCommits$date
 ```
 
